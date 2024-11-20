@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Private Chat</title>
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+      * {
+        font-family: "Poppins", sans-serif;
+        /* font-family: algerian; */
+      }
+      body {
+        background: rgb(31, 31, 31);
+      }
+
+      .main {
+        height: 85vh;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .right,
+      .left {
+        color: rgb(219, 219, 219);
+        display: flex;
+        flex-direction: column;
+        align-items: end;
+        gap: 1rem;
+        justify-content: center;
+        word-break: break-word;
+        margin: 5px;
+        /* text-align: ; */
+        background-color: rgb(46, 46, 46);
+        padding: 10px 20px;
+      }
+
+      .right {
+        background: #303f48;
+        border-radius: 17px 17px 0px 17px;
+      }
+
+      .left {
+        background-color: #263238;
+        border-radius: 17px 17px 17px 0px;
+      }
+      
+      .right > button {
+        background: none;
+        outline: none;
+        border: none;
+        color: #b0b0b0;
+        font-size: 12px;
+      }
+
+      .left > button {
+        background: none;
+        outline: none;
+        border: none;
+        color: #b0b0b0;
+        font-size: 12px;
+      }
+
+      .right {
+        align-self: flex-end;
+      }
+
+      .left {
+        align-self: flex-start;
+      }
+
+      form.lo {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        padding: 10px 15px;
+        background-color: rgba(40, 40, 40, 0.6);
+        border-radius: 20px;
+        position: fixed;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        z-index: 100;
+        width: 90vw;
+      }
+
+      #inputer {
+        width: 93%;
+        padding: 12px 10px;
+        font-size: 16px;
+        margin-right: 12px;
+        border-radius: 3px;
+        color: #e2e2e2;
+        outline: none;
+        border: none;
+        transition: border 0.3s ease;
+        background-color: rgba(40, 40, 40, 0.6);
+      }
+
+      #ui {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: #324bee;
+        color: white;
+        font-size: 24px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: background-color 0.3s, transform 0.2s;
+      }
+
+      #ui:hover {
+        background-color: #32cd32;
+        transform: scale(1.1);
+      }
+
+      #ui:focus {
+        outline: none;
+      }
+
+      #inputer::placeholder {
+        color: #888;
+        font-style: italic;
+        opacity: 1;
+      }
+
+      #changeCol {
+        background: rgb(45, 45, 45);
+        margin-right: 12px;
+        padding: 12px 10px;
+        border-radius: 4px;
+        color: white;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="main">
+      <div class="right">
+        askdjaks
+        <button>12:12:12</button>
+      </div>
+      <div class="left">
+        askdjaks Lorem ipsum dolor sit, amet consectetur adipisicing elit. Tempore, alias id beatae excepturi corporis iusto accusantium libero molestiae modi veritatis maxime voluptatem perspiciatis quis fuga deserunt exercitationem. Commodi, laudantium repellat.
+        <button>12:12:12</button>
+      </div>
+    </div>
+
+    <form class="lo">
+      <input
+        type="text"
+        class="message"
+        id="inputer"
+        placeholder="Type a Message"
+        autocomplete="off"
+      />
+      <!-- <div id="changeCol">change</div> -->
+      <button type="submit" id="ui">>></button>
+    </form>
+
+    <script>
+      const socket = io("http://localhost:80");
+      const inputer = document.getElementById("inputer");
+      const parent = document.querySelector(".main");
+      const form = document.querySelector(".lo");
+      let changeCol = document.getElementById("changeCol");
+      let randomColor;
+
+      socket.on("message", (data) => {
+        let child = document.createElement("p");
+        let time = document.createElement("button");
+        let person = document.createElement("button");
+        let hours = new Date().getHours();
+        person.innerText = "swakshan";
+        child.classList.add("left");
+        child.appendChild(person);
+        child.innerText = data;
+        let r = ((hours + 11) % 12) + 1;
+        time.innerText =
+          r + ":" + new Date().getMinutes() + ":" + new Date().getSeconds();
+        child.appendChild(time);
+        parent.appendChild(child);
+
+        parent.scrollTop = parent.scrollHeight;
+      });
+
+      const sendMessage = (e) => {
+        e.preventDefault();
+        let child2 = document.createElement("p");
+        let time = document.createElement("button");
+        const messageInput = document.querySelector(".message");
+        const message = messageInput.value;
+
+        socket.emit("message", message);
+
+        child2.classList.add("right");
+        let hours = new Date().getHours();
+        let r = ((hours + 11) % 12) + 1;
+        child2.innerText = message;
+        time.innerText =
+          r + ":" + new Date().getMinutes() + ":" + new Date().getSeconds();
+        child2.appendChild(time);
+        parent.appendChild(child2);
+
+        parent.scrollTop = parent.scrollHeight;
+
+        messageInput.value = "";
+      };
+
+      form.addEventListener("submit", sendMessage);
+
+      //   function changeBackgroundColor() {
+      //     const soothingColors = [
+      //       "#2E3A47", // Dark slate blue
+      //       "#4A4A48", // Charcoal gray
+      //       "#3B4D5C", // Dark teal
+      //       "#2F4F4F", // Dark sea green
+      //       "#4F5D75", // Steel gray
+      //       "#3C4A5A", // Midnight blue
+      //       "#1D2B3A", // Very dark blue
+      //       "#36393F", // Dark gray
+      //       "#3B3F43", // Charcoal
+      //       "#1A2A2F", // Very dark teal
+      //       "#263238", // Dark blue-gray
+      //       "#2C3E50", // Darker blue
+      //       "#2A3D4A", // Dark cyan
+      //       "#37474F", // Slate gray
+      //       "#212121", // Almost black
+      //       "#263238", // Dark slate gray
+      //       "#2F3E46", // Gunmetal
+      //       "#34495E", // Dark grayish blue
+      //       "#232F34", // Charcoal green
+      //       "#303F48", // Shadow gray
+      //     ];
+      //     randomColor =
+      //       soothingColors[Math.floor(Math.random() * soothingColors.length)];
+      //     document.body.style.backgroundColor = randomColor;
+      //   }
+
+      //   changeCol.addEventListener("click", (e) => {
+      //     e.preventDefault()
+      //     changeBackgroundColor();
+      //   });
+    </script>
+  </body>
+</html>
